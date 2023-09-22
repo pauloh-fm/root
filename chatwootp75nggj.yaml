@@ -1,0 +1,94 @@
+---
+version: "3.7"
+services:
+  chatwootp75nggj_admin:
+    image: chatwoot/chatwoot:v2.18.0
+    hostname: chatwootp75nggj
+    entrypoint: docker/entrypoints/rails.sh
+    command: bundle exec rails s -p 3000 -b 0.0.0.0
+    volumes:
+    - chatwootp75nggj_data:/app/storage
+    networks:
+    - network_public
+    environment:
+    - DEFAULT_LOCALE=pt_BR
+    - MAILER_SENDER_EMAIL=suporte@ferramentalmaquinas.com.br
+    - INSTALLATION_NAME=chatwootp75nggj
+    - NODE_ENV=production
+    - RAILS_ENV=production
+    - INSTALLATION_ENV=docker
+    - SECRET_KEY_BASE=NwwgtHQPyOjHXImq
+    - FRONTEND_URL=https://chatwootdev.leaoequipamentos.com.br
+    - FORCE_SSL=true
+    - ENABLE_ACCOUNT_SIGNUP=false
+    - REDIS_URL=redis://redis:6379/1
+    - POSTGRES_DATABASE=chatwootp75nggj
+    - POSTGRES_HOST=postgres
+    - POSTGRES_PORT=5432
+    - POSTGRES_USERNAME=postgres
+    - POSTGRES_PASSWORD=pm9Be00s44SiKodc
+    - RAILS_MAX_THREADS=5
+    - ACTIVE_STORAGE_SERVICE=local
+    - RAILS_LOG_TO_STDOUT=true
+    - USE_INBOX_AVATAR_FOR_BOT=true
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+        - node.role == manager
+      labels:
+      - traefik.enable=1
+      - traefik.http.routers.chatwootp75nggj.rule=Host(`chatwootdev.leaoequipamentos.com.br`)
+      - traefik.http.routers.chatwootp75nggj.entrypoints=websecure
+      - traefik.http.routers.chatwootp75nggj.priority=1
+      - traefik.http.routers.chatwootp75nggj.tls.certresolver=letsencryptresolver
+      - traefik.http.routers.chatwootp75nggj.service=chatwootp75nggj
+      - traefik.http.services.chatwootp75nggj.loadbalancer.server.port=3000
+      - traefik.http.services.chatwootp75nggj.loadbalancer.passHostHeader=1
+      - traefik.http.middlewares.chatwootp75nggj_sslheader.headers.customrequestheaders.X-Forwarded-Proto=https
+      - traefik.http.routers.chatwootp75nggj.middlewares=chatwootp75nggj_sslheader@docker
+  chatwootp75nggj_sidekiq:
+    image: chatwoot/chatwoot:v2.18.0
+    hostname: chatwootp75nggj
+    command: bundle exec sidekiq -C config/sidekiq.yml
+    volumes:
+    - chatwootp75nggj_data:/app/storage
+    networks:
+    - network_public
+    environment:
+    - DEFAULT_LOCALE=pt_BR
+    - MAILER_SENDER_EMAIL=suporte@ferramentalmaquinas.com.br
+    - INSTALLATION_NAME=chatwootp75nggj
+    - NODE_ENV=production
+    - RAILS_ENV=production
+    - INSTALLATION_ENV=docker
+    - SECRET_KEY_BASE=NwwgtHQPyOjHXImq
+    - FRONTEND_URL=https://chatwootdev.leaoequipamentos.com.br
+    - FORCE_SSL=true
+    - ENABLE_ACCOUNT_SIGNUP=false
+    - REDIS_URL=redis://redis:6379/1
+    - POSTGRES_DATABASE=chatwootp75nggj
+    - POSTGRES_HOST=postgres
+    - POSTGRES_PORT=5432
+    - POSTGRES_USERNAME=postgres
+    - POSTGRES_PASSWORD=pm9Be00s44SiKodc
+    - RAILS_MAX_THREADS=5
+    - ACTIVE_STORAGE_SERVICE=local
+    - RAILS_LOG_TO_STDOUT=true
+    - USE_INBOX_AVATAR_FOR_BOT=true
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+        - node.role == manager
+volumes:
+  chatwootp75nggj_data:
+    external: true
+    name: chatwootp75nggj_datad
+networks:
+  network_public:
+    name: network_swarm_public
+    external: true
+...
